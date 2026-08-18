@@ -9,6 +9,7 @@ import Flashcards from "./Flashcards";
 import Learn from "./Learn";
 import MatchGame from "./MatchGame";
 import type { MatchPair } from "../lib/matchGame";
+import TypingAttack from "./TypingAttack";
 
 interface Props {
   decks: Deck[]; // all decks in the app; only drug-kind ones with cards are used
@@ -16,7 +17,7 @@ interface Props {
   onChanged: () => void;
 }
 
-type Mode = "browse" | "flashcards" | "learn" | "match";
+type Mode = "browse" | "flashcards" | "learn" | "match" | "typing";
 type Filter = "all" | "known" | "practice";
 
 export default function CramStudy({ decks, onExit, onChanged }: Props) {
@@ -77,6 +78,10 @@ export default function CramStudy({ decks, onExit, onChanged }: Props) {
     return <MatchGame pairs={pairs} onExit={() => setMode("browse")} />;
   }
 
+  if (mode === "typing") {
+    return <TypingAttack cards={filteredCards} onExit={() => setMode("browse")} />;
+  }
+
   return (
     <div>
       <button className="btn btn-ghost" onClick={onExit} style={{ marginBottom: 16 }}>
@@ -133,6 +138,13 @@ export default function CramStudy({ decks, onExit, onChanged }: Props) {
               onClick={() => setMode("match")}
             >
               Match
+            </button>
+            <button
+              className="btn"
+              disabled={filteredCards.length < 4}
+              onClick={() => setMode("typing")}
+            >
+              ⌨️ Typing Attack
             </button>
           </div>
 

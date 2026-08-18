@@ -26,6 +26,7 @@ import Learn from "./Learn";
 import MatchGame from "./MatchGame";
 import type { MatchPair } from "../lib/matchGame";
 import PronunciationRecorder from "./PronunciationRecorder";
+import TypingAttack from "./TypingAttack";
 
 interface Props {
   deck: Deck;
@@ -34,7 +35,7 @@ interface Props {
 }
 
 type Tab = "study" | "manage" | "interactions";
-type StudyMode = "browse" | "flashcards" | "learn" | "match" | "interactions-quiz";
+type StudyMode = "browse" | "flashcards" | "learn" | "match" | "typing" | "interactions-quiz";
 type Filter = "all" | "known" | "practice";
 
 export default function DeckView({ deck, onBack, onDeckChanged }: Props) {
@@ -133,6 +134,10 @@ export default function DeckView({ deck, onBack, onDeckChanged }: Props) {
     return <MatchGame pairs={pairs} onExit={() => setStudyMode("browse")} />;
   }
 
+  if (studyMode === "typing") {
+    return <TypingAttack cards={filteredCards} onExit={() => setStudyMode("browse")} />;
+  }
+
   if (studyMode === "interactions-quiz") {
     return (
       <InteractionQuiz
@@ -211,6 +216,13 @@ export default function DeckView({ deck, onBack, onDeckChanged }: Props) {
               onClick={() => setStudyMode("match")}
             >
               Match
+            </button>
+            <button
+              className="btn"
+              disabled={filteredCards.length < 4}
+              onClick={() => setStudyMode("typing")}
+            >
+              ⌨️ Typing Attack
             </button>
           </div>
 

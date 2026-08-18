@@ -15,6 +15,7 @@ interface Props {
   onOpenCram: () => void;
   onOpenPK: () => void;
   onOpenStats: () => void;
+  onOpenWordle: () => void;
   onSetupFallP2: () => void;
   onCreateDeck: (name: string) => void;
   onCreateDeckWithDrugs: (name: string, drugs: NewDrugInput[]) => void;
@@ -25,7 +26,7 @@ interface Props {
 
 type SortKey = "recent" | "name" | "cards" | "mastery";
 
-export default function DeckList({ decks, onOpenDeck, onOpenCram, onOpenPK, onOpenStats, onSetupFallP2, onCreateDeck, onCreateDeckWithDrugs, onCreateCaseDeck, onDeleteDeck, onDecksImported }: Props) {
+export default function DeckList({ decks, onOpenDeck, onOpenCram, onOpenPK, onOpenStats, onOpenWordle, onSetupFallP2, onCreateDeck, onCreateDeckWithDrugs, onCreateCaseDeck, onDeleteDeck, onDecksImported }: Props) {
   const [showNewChoice, setShowNewChoice] = useState(false);
   const [showImportBundle, setShowImportBundle] = useState(false);
   const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
@@ -159,6 +160,9 @@ export default function DeckList({ decks, onOpenDeck, onOpenCram, onOpenPK, onOp
         </button>
         <button className="btn" onClick={onOpenPK}>
           📐 PK Practice
+        </button>
+        <button className="btn" onClick={onOpenWordle}>
+          🟩 Rx Wordle
         </button>
         <button className="btn" onClick={onOpenStats}>
           🏆 Stats

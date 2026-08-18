@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { loadGamification } from "../lib/gamification";
+import { allAchievementsStatus, loadGamification } from "../lib/gamification";
 
 interface Props {
   onExit: () => void;
@@ -12,12 +12,21 @@ const MODE_LABELS: Record<string, string> = {
   interactions: "Interactions quiz",
   pk: "PK practice",
   match: "Match",
+  typing: "Typing Attack",
+  rxdle: "Rx Wordle",
 };
+
+function formatMatchTime(ms: number): string {
+  const seconds = ms / 1000;
+  return seconds >= 60 ? `${Math.floor(seconds / 60)}:${(seconds % 60).toFixed(1).padStart(4, "0")}` : `${seconds.toFixed(1)}s`;
+}
 
 export default function StatsView({ onExit }: Props) {
   const state = useMemo(() => loadGamification(), []);
+  const achievementStatuses = useMemo(() => allAchievementsStatus(), []);
   const recent = state.sessions.slice(0, 15);
   const bestSession = state.sessions.reduce((best, s) => (s.points > (best?.points ?? -1) ? s : best), state.sessions[0]);
+  const unlockedCount = achievementStatuses.filter((a) => a.unlockedAt !== null).length;
 
   return (
     <div>
@@ -57,11 +66,46 @@ export default function StatsView({ onExit }: Props) {
         )}
       </div>
 
+      {(state.highScores.typing !== undefined || state.highScores.match !== undefined) && (
+        <>
+          <h3 style={{ fontFamily: "var(--font-display)", fontSize: 18, marginBottom: 10 }}>Leaderboard</h3>
+          <div className="deck-grid" style={{ marginBottom: 24 }}>
+            {state.highScores.typing !== undefined && (
+              <div className="deck-tile" style={{ cursor: "default" }}>
+                <h3>{state.highScores.typing} pts</h3>
+                <div className="meta">⌨️ Typing Attack best</div>
+              </div>
+            )}
+            {state.highScores.match !== undefined && (
+              <div className="deck-tile" style={{ cursor: "default" }}>
+                <h3>{formatMatchTime(state.highScores.match)}</h3>
+                <div className="meta">🃏 Match fastest time</div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      <h3 style={{ fontFamily: "var(--font-display)", fontSize: 18, marginBottom: 10 }}>
+        Achievements ({unlockedCount}/{achievementStatuses.length})
+      </h3>
+      <div className="badge-grid" style={{ marginBottom: 24 }}>
+        {achievementStatuses.map(({ achievement, unlockedAt }) => (
+          <div key={achievement.id} className={`badge-tile ${unlockedAt ? "" : "locked"}`}>
+            <span className="badge-icon">{achievement.icon}</span>
+            <div>
+              <div className="badge-label">{achievement.label}</div>
+              <div className="badge-desc">{achievement.description}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <h3 style={{ fontFamily: "var(--font-display)", fontSize: 18, marginBottom: 10 }}>Recent sessions</h3>
       {recent.length === 0 ? (
         <div className="empty-state">
           <h3>No sessions yet</h3>
-          <p>Study a set with Learn, Match, or PK Practice to start racking up points.</p>
+          <p>Study a set, play Match or Typing Attack, or solve today's Rx Wordle to start racking up points.</p>
         </div>
       ) : (
         <table className="card-table">

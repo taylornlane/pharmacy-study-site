@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { awardReview, recordSessionComplete } from "../lib/gamification";
+import { awardReview, evaluateAchievements, recordHighScore, recordSessionComplete } from "../lib/gamification";
+import type { Achievement } from "../lib/gamification";
 import type { MatchPair } from "../lib/matchGame";
 import { pickMatchRound, shuffle } from "../lib/matchGame";
 
@@ -32,6 +33,8 @@ export default function MatchGame({ pairs, onExit, roundSize = 6 }: Props) {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
   const wrongTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function buildTiles(source: MatchPair[]): Tile[] {
@@ -49,6 +52,8 @@ export default function MatchGame({ pairs, onExit, roundSize = 6 }: Props) {
     setStartedAt(null);
     setElapsed(0);
     setFinished(false);
+    setNewAchievements([]);
+    setIsNewHighScore(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round]);
 
@@ -92,8 +97,12 @@ export default function MatchGame({ pairs, onExit, roundSize = 6 }: Props) {
       setSelected(null);
       awardReview("good");
       if (nextMatched.size === round.length) {
+        const finishElapsed = startedAt !== null ? Date.now() - startedAt : elapsed;
+        setElapsed(finishElapsed);
         setFinished(true);
         recordSessionComplete(round.length, Math.max(0, round.length - mistakes), "match");
+        setIsNewHighScore(recordHighScore("match", finishElapsed, false));
+        setNewAchievements(evaluateAchievements());
       }
     } else {
       setWrongKeys([selected, tile.key]);
@@ -142,6 +151,16 @@ export default function MatchGame({ pairs, onExit, roundSize = 6 }: Props) {
         <div className="empty-state">
           <h3>Matched all {round.length} pairs 🎉</h3>
           <p>Your time: {formatTime(elapsed)}</p>
+          {isNewHighScore && <p style={{ color: "var(--sage-dark)", fontWeight: 600 }}>🏆 New best time!</p>}
+          {newAchievements.length > 0 && (
+            <div style={{ marginTop: 10, marginBottom: 4 }}>
+              {newAchievements.map((a) => (
+                <div key={a.id} className="pill-meter-text">
+                  {a.icon} New achievement: <strong style={{ color: "var(--ink)" }}>{a.label}</strong>
+                </div>
+              ))}
+            </div>
+          )}
           <button className="btn btn-primary" onClick={newRound}>
             Play again
           </button>

@@ -8,6 +8,7 @@ import CramStudy from "./components/CramStudy";
 import PKPractice from "./components/PKPractice";
 import PomodoroWidget from "./components/PomodoroWidget";
 import StatsView from "./components/StatsView";
+import RxWordle from "./components/RxWordle";
 
 const FALL_P2_COURSES: { name: string; kind: "drugs" | "cases" }[] = [
   { name: "PharmSci 608 - Basic & Clinical PK", kind: "drugs" },
@@ -21,6 +22,7 @@ export default function App() {
   const [showCram, setShowCram] = useState(false);
   const [showPK, setShowPK] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [showWordle, setShowWordle] = useState(false);
 
   function refresh() {
     setDecks(loadDecks());
@@ -55,6 +57,8 @@ export default function App() {
 
       {showStats ? (
         <StatsView onExit={() => setShowStats(false)} />
+      ) : showWordle ? (
+        <RxWordle onExit={() => setShowWordle(false)} />
       ) : showPK ? (
         <PKPractice onExit={() => setShowPK(false)} />
       ) : showCram ? (
@@ -93,6 +97,7 @@ export default function App() {
           onOpenCram={() => setShowCram(true)}
           onOpenPK={() => setShowPK(true)}
           onOpenStats={() => setShowStats(true)}
+          onOpenWordle={() => setShowWordle(true)}
           onSetupFallP2={setupFallP2Courses}
           onDecksImported={refresh}
           onCreateDeck={(name) => {
